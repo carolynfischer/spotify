@@ -1,1 +1,3 @@
-kernel//home/carolyn/Dropbox/kernel/helloworld/helloworld.ko
+kernel//home/carolyn/spotify/kernel_module/helloworld/helloworld.ko
+kernel//home/carolyn/spotify/kernel_module/helloworld/interceptor.ko
+kernel//home/carolyn/spotify/kernel_module/helloworld/hijack.ko

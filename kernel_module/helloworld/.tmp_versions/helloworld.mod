@@ -1,2 +1,2 @@
-/home/carolyn/Dropbox/kernel/helloworld/helloworld.ko
-/home/carolyn/Dropbox/kernel/helloworld/helloworld.o
+/home/carolyn/spotify/kernel_module/helloworld/helloworld.ko
+/home/carolyn/spotify/kernel_module/helloworld/helloworld.o

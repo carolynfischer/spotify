@@ -1,0 +1,56 @@
+Assignments purpose is alot about trying to evaluate how fast you learn and pick up new things.
+
+Pick at least one:
+
+1. Write a Linux Kernel module (3.x) that intercepts a system call by hijacking the sys_call_table and does an extra printk with ascii art.
+https://bbs.archlinux.org/viewtopic.php?id=139406
+
+# running this kernel
+root@slack:~# uname -a
+Linux slack 3.12.19custom #10 SMP Sat May 10 16:33:57 EEST 2014 x86_64 Intel(R) Core(TM) i5 CPU       M 540  @ 2.53GHz GenuineIntel GNU/Linux
+
+# get the address of sys_call_table
+grep sys_call_table /boot/System.map 
+ffffffff81bb2200 R sys_call_table
+ffffffff81bbe940 R ia32_sys_call_table
+
+/usr/include/asm/unistd_64.h contains syscalls and numbers to it, in my case there are 314 syscalls and starts with the following:
+#define __NR_read 0
+#define __NR_write 1
+#define __NR_open 2
+#define __NR_close 3
+...
+
+# open 
+gdb /usr/src/linux/vmlinux
+(gdb) x/314 0xffffffff81bb2200
+0xffffffff81bb2200 <sys_call_table>:    -2129232480     -1      -2129232320     -1
+0xffffffff81bb2210 <sys_call_table+16>: -2129237760     -1      -2129237664     -1
+0xffffffff81bb2220 <sys_call_table+32>: -2129212992     -1      -2129212944     -1
+0xffffffff81bb2230 <sys_call_table+48>: -2129212976     -1      -2129150640     -1
+...
+
+Each syscall seems to take 32 bytes in memory. In that case #define __NR_read 0 is syscall read() and has address 0xffffffff81bb2200
+
+# this displays the running kernel's current addresses
+gdb /usr/src/linux/vmlinux /proc/kcore
+(gdb) x/20 0xffffffff81bb2200
+0xffffffff81bb2200 <sys_call_table>:    -1601052672     -1      -2129232320     -1
+0xffffffff81bb2210 <sys_call_table+16>: -2129237760     -1      -2129237664     -1
+0xffffffff81bb2220 <sys_call_table+32>: -2129212992     -1      -2129212944     -1
+0xffffffff81bb2230 <sys_call_table+48>: -2129212976     -1      -2129150640     -1
+0xffffffff81bb2240 <sys_call_table+64>: -2129236096     -1      -2130674816     -1
+
+
+Since 2.6.x kernels a new security system was introduced. This was marking the table as Write Protected (read only) as secured by the cpu itself. This is a bit that doesn't allow us to write to the table at runtime. The WP bit is controlled by the control register cr0. This register holds all sorts of other interesting values like controlling paging, caching, and even protected mode. The WP bit is actually the 16th bit of the cr0 register and we can manipulate it by some simple bitmasking. There are two defined C macros for writing and reading this cr0 register that is appropriately called read_cr0() and write_cr0(). So, let's disable the WP bit in cr0:
+
+write_cr0(read_cr0() & (~ 0x10000));
+
+Read in the current cr0 value and AND it with NOT these bytes. This effectively turns the 16th bit into a 0.
+
+
+2. Prepare to talk in depth about Transport Layer Security, key exchange and perfect forward secrecy.
+
+3. Write a script that identifies linux processes running with outdated library versions (i.e. library has been updated in the filesystem)
+
+Make a private project on github. One of the spotify engineers wants to be invited. (handle skateordie)
