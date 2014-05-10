@@ -1,0 +1,1 @@
+cmd_/home/carolyn/Dropbox/kernel/helloworld/helloworld.ko := ld -r -m elf_x86_64 -T /usr/src/linux-3.12.19/scripts/module-common.lds --build-id  -o /home/carolyn/Dropbox/kernel/helloworld/helloworld.ko /home/carolyn/Dropbox/kernel/helloworld/helloworld.o /home/carolyn/Dropbox/kernel/helloworld/helloworld.mod.o
