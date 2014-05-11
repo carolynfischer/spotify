@@ -1,1 +1,0 @@
-cmd_/home/carolyn/spotify/kernel_module/helloworld/hijack.ko := ld -r -m elf_x86_64 -T /usr/src/linux-3.12.19/scripts/module-common.lds --build-id  -o /home/carolyn/spotify/kernel_module/helloworld/hijack.ko /home/carolyn/spotify/kernel_module/helloworld/hijack.o /home/carolyn/spotify/kernel_module/helloworld/hijack.mod.o
