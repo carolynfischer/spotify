@@ -528,6 +528,63 @@ deps_/home/carolyn/spotify/kernel_module/helloworld/interceptor.o := \
     $(wildcard include/config/have/mod/arch/specific.h) \
     $(wildcard include/config/modules/use/elf/rel.h) \
     $(wildcard include/config/modules/use/elf/rela.h) \
+  /usr/src/linux-3.12.19/arch/x86/include/asm/uaccess.h \
+    $(wildcard include/config/x86/intel/usercopy.h) \
+  /usr/src/linux-3.12.19/arch/x86/include/asm/smap.h \
+    $(wildcard include/config/x86/smap.h) \
+  /usr/src/linux-3.12.19/arch/x86/include/asm/uaccess_64.h \
+  /usr/src/linux-3.12.19/arch/x86/include/asm/cacheflush.h \
+    $(wildcard include/config/x86/pat.h) \
+    $(wildcard include/config/debug/rodata.h) \
+    $(wildcard include/config/debug/rodata/test.h) \
+  include/asm-generic/cacheflush.h \
+  include/linux/mm.h \
+    $(wildcard include/config/ppc.h) \
+    $(wildcard include/config/parisc.h) \
+    $(wildcard include/config/metag.h) \
+    $(wildcard include/config/stack/growsup.h) \
+    $(wildcard include/config/transparent/hugepage.h) \
+    $(wildcard include/config/ksm.h) \
+    $(wildcard include/config/debug/vm/rb.h) \
+    $(wildcard include/config/arch/uses/numa/prot/none.h) \
+    $(wildcard include/config/debug/pagealloc.h) \
+    $(wildcard include/config/hugetlbfs.h) \
+  include/linux/debug_locks.h \
+    $(wildcard include/config/debug/locking/api/selftests.h) \
+  include/linux/mm_types.h \
+    $(wildcard include/config/split/ptlock/cpus.h) \
+    $(wildcard include/config/have/cmpxchg/double.h) \
+    $(wildcard include/config/have/aligned/struct/page.h) \
+    $(wildcard include/config/want/page/debug/flags.h) \
+    $(wildcard include/config/aio.h) \
+    $(wildcard include/config/mm/owner.h) \
+    $(wildcard include/config/mmu/notifier.h) \
+  include/linux/auxvec.h \
+  include/uapi/linux/auxvec.h \
+  include/linux/page-debug-flags.h \
+    $(wildcard include/config/page/poisoning.h) \
+    $(wildcard include/config/page/guard.h) \
+    $(wildcard include/config/page/debug/something/else.h) \
+  include/linux/uprobes.h \
+    $(wildcard include/config/arch/supports/uprobes.h) \
+    $(wildcard include/config/uprobes.h) \
+  /usr/src/linux-3.12.19/arch/x86/include/asm/uprobes.h \
+  include/linux/bit_spinlock.h \
+  include/linux/shrinker.h \
+  /usr/src/linux-3.12.19/arch/x86/include/asm/pgtable.h \
+  /usr/src/linux-3.12.19/arch/x86/include/asm/pgtable_64.h \
+  include/asm-generic/pgtable.h \
+    $(wildcard include/config/have/arch/soft/dirty.h) \
+  include/linux/page-flags.h \
+    $(wildcard include/config/pageflags/extended.h) \
+    $(wildcard include/config/arch/uses/pg/uncached.h) \
+    $(wildcard include/config/memory/failure.h) \
+    $(wildcard include/config/swap.h) \
+  include/linux/huge_mm.h \
+  include/linux/vmstat.h \
+    $(wildcard include/config/vm/event/counters.h) \
+  include/linux/vm_event_item.h \
+    $(wildcard include/config/migration.h) \
   include/linux/syscalls.h \
     $(wildcard include/config/ftrace/syscalls.h) \
     $(wildcard include/config/old/sigsuspend.h) \
@@ -578,53 +635,6 @@ deps_/home/carolyn/spotify/kernel_module/helloworld/interceptor.o := \
   include/linux/ring_buffer.h \
     $(wildcard include/config/ring/buffer/allow/swap.h) \
   include/linux/kmemcheck.h \
-  include/linux/mm_types.h \
-    $(wildcard include/config/split/ptlock/cpus.h) \
-    $(wildcard include/config/have/cmpxchg/double.h) \
-    $(wildcard include/config/have/aligned/struct/page.h) \
-    $(wildcard include/config/want/page/debug/flags.h) \
-    $(wildcard include/config/aio.h) \
-    $(wildcard include/config/mm/owner.h) \
-    $(wildcard include/config/mmu/notifier.h) \
-    $(wildcard include/config/transparent/hugepage.h) \
-  include/linux/auxvec.h \
-  include/uapi/linux/auxvec.h \
-  include/linux/page-debug-flags.h \
-    $(wildcard include/config/page/poisoning.h) \
-    $(wildcard include/config/page/guard.h) \
-    $(wildcard include/config/page/debug/something/else.h) \
-  include/linux/uprobes.h \
-    $(wildcard include/config/arch/supports/uprobes.h) \
-    $(wildcard include/config/uprobes.h) \
-  /usr/src/linux-3.12.19/arch/x86/include/asm/uprobes.h \
-  include/linux/mm.h \
-    $(wildcard include/config/ppc.h) \
-    $(wildcard include/config/parisc.h) \
-    $(wildcard include/config/metag.h) \
-    $(wildcard include/config/stack/growsup.h) \
-    $(wildcard include/config/ksm.h) \
-    $(wildcard include/config/debug/vm/rb.h) \
-    $(wildcard include/config/arch/uses/numa/prot/none.h) \
-    $(wildcard include/config/debug/pagealloc.h) \
-    $(wildcard include/config/hugetlbfs.h) \
-  include/linux/debug_locks.h \
-    $(wildcard include/config/debug/locking/api/selftests.h) \
-  include/linux/bit_spinlock.h \
-  include/linux/shrinker.h \
-  /usr/src/linux-3.12.19/arch/x86/include/asm/pgtable.h \
-  /usr/src/linux-3.12.19/arch/x86/include/asm/pgtable_64.h \
-  include/asm-generic/pgtable.h \
-    $(wildcard include/config/have/arch/soft/dirty.h) \
-  include/linux/page-flags.h \
-    $(wildcard include/config/pageflags/extended.h) \
-    $(wildcard include/config/arch/uses/pg/uncached.h) \
-    $(wildcard include/config/memory/failure.h) \
-    $(wildcard include/config/swap.h) \
-  include/linux/huge_mm.h \
-  include/linux/vmstat.h \
-    $(wildcard include/config/vm/event/counters.h) \
-  include/linux/vm_event_item.h \
-    $(wildcard include/config/migration.h) \
   include/linux/seq_file.h \
   include/linux/poll.h \
   include/linux/fs.h \
@@ -667,11 +677,6 @@ deps_/home/carolyn/spotify/kernel_module/helloworld/interceptor.o := \
   include/uapi/linux/fcntl.h \
   /usr/src/linux-3.12.19/arch/x86/include/uapi/asm/fcntl.h \
   /usr/src/linux-3.12.19/include/uapi/asm-generic/fcntl.h \
-  /usr/src/linux-3.12.19/arch/x86/include/asm/uaccess.h \
-    $(wildcard include/config/x86/intel/usercopy.h) \
-  /usr/src/linux-3.12.19/arch/x86/include/asm/smap.h \
-    $(wildcard include/config/x86/smap.h) \
-  /usr/src/linux-3.12.19/arch/x86/include/asm/uaccess_64.h \
   include/uapi/linux/poll.h \
   /usr/src/linux-3.12.19/arch/x86/include/uapi/asm/poll.h \
   /usr/src/linux-3.12.19/include/uapi/asm-generic/poll.h \
@@ -697,7 +702,6 @@ deps_/home/carolyn/spotify/kernel_module/helloworld/interceptor.o := \
   include/linux/profile.h \
     $(wildcard include/config/profiling.h) \
   /usr/src/linux-3.12.19/arch/x86/include/asm/sections.h \
-    $(wildcard include/config/debug/rodata.h) \
   include/asm-generic/sections.h \
   include/linux/ftrace_irq.h \
     $(wildcard include/config/ftrace/nmi/enter.h) \
@@ -833,6 +837,9 @@ deps_/home/carolyn/spotify/kernel_module/helloworld/interceptor.o := \
   include/linux/perf_regs.h \
     $(wildcard include/config/have/perf/regs.h) \
   /usr/src/linux-3.12.19/arch/x86/include/uapi/asm/perf_regs.h \
+  include/linux/delay.h \
+  /usr/src/linux-3.12.19/arch/x86/include/asm/delay.h \
+  include/asm-generic/delay.h \
 
 /home/carolyn/spotify/kernel_module/helloworld/interceptor.o: $(deps_/home/carolyn/spotify/kernel_module/helloworld/interceptor.o)
 

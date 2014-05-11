@@ -1,85 +1,120 @@
 #include <linux/module.h>
-#include <linux/kernel.h>
+#include <linux/init.h>
+#include <linux/types.h>
+#include <asm/uaccess.h>
+#include <asm/cacheflush.h>
 #include <linux/syscalls.h>
-#include <asm/paravirt.h>
+#include <linux/delay.h>    /* loops_per_jiffy */
 
-unsigned long **sys_call_table;
-unsigned long original_cr0;
+#define CR0_WP 0x00010000   /* The Write Protect bit is the 16th bit of the cr0 register (CR0:16) and we can manipulate it by some simple bitmasking. */
 
-asmlinkage long (*ref_sys_read)(unsigned int fd, char __user *buf, size_t count);
-
-asmlinkage long new_sys_read(unsigned int fd, char __user *buf, size_t count)
-{
-	long ret;
-	ret = ref_sys_read(fd, buf, count);
-
-	if(count == 1 && fd == 0)
-		printk(KERN_INFO "intercept: 0x%02X\n", buf[0]);
-		printk(KERN_ALERT "\n");
-		printk(KERN_ALERT "\n");
-		printk(KERN_ALERT "  ______                         __      __   ______           \n");
-		printk(KERN_ALERT " /      \\                       /  |    /  | /      \\          \n");
-		printk(KERN_ALERT "/$$$$$$  |  ______    ______   _$$ |_   $$/ /$$$$$$  |__    __ \n");
-		printk(KERN_ALERT "$$ \\__$$/  /      \\  /      \\ / $$   |  /  |$$ |_ $$//  |  /  |\n");
-		printk(KERN_ALERT "$$      \\ /$$$$$$  |/$$$$$$  |$$$$$$/   $$ |$$   |   $$ |  $$ |\n");
-		printk(KERN_ALERT " $$$$$$  |$$ |  $$ |$$ |  $$ |  $$ | __ $$ |$$$$/    $$ |  $$ |\n");
-		printk(KERN_ALERT "/  \\__$$ |$$ |__$$ |$$ \\__$$ |  $$ |/  |$$ |$$ |     $$ \\__$$ |\n");
-		printk(KERN_ALERT "$$    $$/ $$    $$/ $$    $$/   $$  $$/ $$ |$$ |     $$    $$ |\n");
-		printk(KERN_ALERT " $$$$$$/  $$$$$$$/   $$$$$$/     $$$$/  $$/ $$/       $$$$$$$ |\n");
-		printk(KERN_ALERT "          $$ |                                       /  \\__$$ |\n");
-		printk(KERN_ALERT "          $$ |                                       $$    $$/ \n");
-		printk(KERN_ALERT "          $$/                                         $$$$$$/  \n");
-		printk(KERN_ALERT "\n");
-		printk(KERN_ALERT "\n");
-
-	return ret;
-}
-
-static unsigned long **aquire_sys_call_table(void)
-{
-	unsigned long **sct;
-	unsigned long int offset;
-
-	for(offset = PAGE_OFFSET; offset < ULLONG_MAX; offset += sizeof(void *))
-	{
-		sct = (unsigned long **)offset;
-
-		if (sct[__NR_close] == (unsigned long *) sys_close) 
-			return sct;
-	}
-
-	return NULL;
-}
-
-static int __init interceptor_start(void) 
-{
-	if(!(sys_call_table = aquire_sys_call_table()))
-		return -1;
-
-	/* backup control register */
-	original_cr0 = read_cr0();
-
-	/* The WP bit is the 16th bit of the cr0 register and we can manipulate it by some simple bitmasking. */
-	write_cr0(original_cr0 & ~0x00010000);
-	ref_sys_read = (void *)sys_call_table[__NR_read];
-	sys_call_table[__NR_read] = (unsigned long *)new_sys_read;
-	write_cr0(original_cr0);
-
-	return 0;
-}
-
-static void __exit interceptor_end(void) 
-{
-	if(!sys_call_table)
-		return;
-
-	write_cr0(original_cr0 & ~0x00010000);
-	sys_call_table[__NR_read] = (unsigned long *)ref_sys_read;
-	write_cr0(original_cr0);
-	printk(KERN_ALERT "Removing interceptor\n");
-}
-
-module_init(interceptor_start);
-module_exit(interceptor_end);
-
+/* Just so we do not taint the kernel */
 MODULE_LICENSE("GPL");
+
+void **syscall_table;
+unsigned long **find_sys_call_table(void);
+
+long (*orig_sys_open)(const char __user *filename, int flags, int mode);
+
+unsigned long **find_sys_call_table() {
+    
+    unsigned long ptr;
+    unsigned long *p;
+
+    for (ptr = (unsigned long)sys_close;
+         ptr < (unsigned long)&loops_per_jiffy;
+         ptr += sizeof(void *)) {
+             
+        p = (unsigned long *)ptr;
+
+        if (p[__NR_close] == (unsigned long)sys_close) {
+            printk(KERN_ALERT "Found the sys_call_table at %lx\n", p[__NR_close]);
+            return (unsigned long **)p;
+        }
+    }
+    
+    return NULL;
+}
+
+long my_sys_open(const char __user *filename, int flags, int mode) {
+    long ret;
+
+    ret = orig_sys_open(filename, flags, mode);
+    printk(KERN_ALERT "file %s has been opened with mode %d\n", filename, mode);
+    printk(KERN_ALERT "\n");
+    printk(KERN_ALERT "\n");
+    printk(KERN_ALERT "  ______                         __      __   ______           \n");
+    printk(KERN_ALERT " /      \\                       /  |    /  | /      \\          \n");
+    printk(KERN_ALERT "/$$$$$$  |  ______    ______   _$$ |_   $$/ /$$$$$$  |__    __ \n");
+    printk(KERN_ALERT "$$ \\__$$/  /      \\  /      \\ / $$   |  /  |$$ |_ $$//  |  /  |\n");
+    printk(KERN_ALERT "$$      \\ /$$$$$$  |/$$$$$$  |$$$$$$/   $$ |$$   |   $$ |  $$ |\n");
+    printk(KERN_ALERT " $$$$$$  |$$ |  $$ |$$ |  $$ |  $$ | __ $$ |$$$$/    $$ |  $$ |\n");
+    printk(KERN_ALERT "/  \\__$$ |$$ |__$$ |$$ \\__$$ |  $$ |/  |$$ |$$ |     $$ \\__$$ |\n");
+    printk(KERN_ALERT "$$    $$/ $$    $$/ $$    $$/   $$  $$/ $$ |$$ |     $$    $$ |\n");
+    printk(KERN_ALERT " $$$$$$/  $$$$$$$/   $$$$$$/     $$$$/  $$/ $$/       $$$$$$$ |\n");
+    printk(KERN_ALERT "          $$ |                                       /  \\__$$ |\n");
+    printk(KERN_ALERT "          $$ |                                       $$    $$/ \n");
+    printk(KERN_ALERT "          $$/                                         $$$$$$/  \n");
+    printk(KERN_ALERT "\n");
+    printk(KERN_ALERT "\n");
+
+    
+    return ret;
+}
+
+static int __init syscall_init(void)
+{
+    int ret;
+    unsigned long addr;
+    unsigned long cr0;
+ 
+   /* pointer to the sys_call_table */ 
+    syscall_table = (void **)find_sys_call_table();
+
+    if (!syscall_table) {
+        printk(KERN_ALERT "Cannot find the system call address\n"); 
+        return -1;
+    }
+
+    /* backup control register */
+    cr0 = read_cr0();
+    /* The WP bit is the 16th bit of the cr0 register and we can manipulate it by some simple bitmasking. 
+     * When WP flag is set to 1 any memory page that is set read-only cannot be changed to be writable, 
+     * so we need to change this flag to 0. */
+    write_cr0(cr0 & ~CR0_WP);
+
+    /* address of the first element of the syscall table */
+    addr = (unsigned long)syscall_table;
+    ret = set_memory_rw(PAGE_ALIGN(addr) - PAGE_SIZE, 3);
+
+    if(ret) {
+        printk(KERN_ALERT "Cannot set the memory to rw (%d) at addr %16lX\n", ret, PAGE_ALIGN(addr) - PAGE_SIZE);
+    } else {
+        printk(KERN_ALERT "3 pages set to rw");
+    }
+    
+    /* back up open() syscall */
+    orig_sys_open = syscall_table[__NR_open];
+    /* replace open() syscall with my own */
+    syscall_table[__NR_open] = my_sys_open;
+    /* write to control register */
+    write_cr0(cr0);
+  
+    return 0;
+}
+
+static void __exit syscall_release(void)
+{
+    unsigned long cr0;
+    
+    /* set control register's write protection flag back along with the original syscall */
+    cr0 = read_cr0();
+    write_cr0(cr0 & ~CR0_WP);
+   
+    syscall_table[__NR_open] = orig_sys_open;
+    
+    write_cr0(cr0);
+}
+
+module_init(syscall_init);
+module_exit(syscall_release);

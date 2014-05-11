@@ -9,10 +9,12 @@ https://bbs.archlinux.org/viewtopic.php?id=139406
 root@slack:~# uname -a
 Linux slack 3.12.19custom #10 SMP Sat May 10 16:33:57 EEST 2014 x86_64 Intel(R) Core(TM) i5 CPU       M 540  @ 2.53GHz GenuineIntel GNU/Linux
 
-# get the address of sys_call_table
-grep sys_call_table /boot/System.map 
+# get the address of sys_call_table from /boot/System.map 
 ffffffff81bb2200 R sys_call_table
 ffffffff81bbe940 R ia32_sys_call_table
+ffffffff81f2d020 D loops_per_jiffy
+ffffffff81166960 T sys_close
+R = read-only data section, D = initialized data section, T = text (code) section
 
 /usr/include/asm/unistd_64.h contains syscalls and numbers to it, in my case there are 314 syscalls and starts with the following:
 #define __NR_read 0
@@ -34,7 +36,7 @@ Each syscall seems to take 32 bytes in memory. In that case #define __NR_read 0 
 
 # this displays the running kernel's current addresses
 gdb /usr/src/linux/vmlinux /proc/kcore
-(gdb) x/20 0xffffffff81bb2200
+(gdb) x/30 0xffffffff81bb2200
 0xffffffff81bb2200 <sys_call_table>:    -1601052672     -1      -2129232320     -1
 0xffffffff81bb2210 <sys_call_table+16>: -2129237760     -1      -2129237664     -1
 0xffffffff81bb2220 <sys_call_table+32>: -2129212992     -1      -2129212944     -1
