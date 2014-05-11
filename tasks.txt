@@ -10,10 +10,12 @@ root@slack:~# uname -a
 Linux slack 3.12.19custom #10 SMP Sat May 10 16:33:57 EEST 2014 x86_64 Intel(R) Core(TM) i5 CPU       M 540  @ 2.53GHz GenuineIntel GNU/Linux
 
 # get the address of sys_call_table from /boot/System.map 
-ffffffff81bb2200 R sys_call_table
-ffffffff81bbe940 R ia32_sys_call_table
-ffffffff81f2d020 D loops_per_jiffy
+grep " sys_close\| sys_call_table\| loops_per_jiffy" /boot/System.map
 ffffffff81166960 T sys_close
+ffffffff81bb2200 R sys_call_table
+ffffffff81f2d020 D loops_per_jiffy
+
+
 R = read-only data section, D = initialized data section, T = text (code) section
 
 /usr/include/asm/unistd_64.h contains syscalls and numbers to it, in my case there are 314 syscalls and starts with the following:
@@ -53,6 +55,44 @@ Read in the current cr0 value and AND it with NOT these bytes. This effectively 
 
 2. Prepare to talk in depth about Transport Layer Security, key exchange and perfect forward secrecy.
 
-3. Write a script that identifies linux processes running with outdated library versions (i.e. library has been updated in the filesystem)
+3. Write a script check_library.so that identifies linux processes running with outdated library versions (i.e. library has been updated in the filesystem)
+
+Kind of quick and dirty approach. Assumes that the old library is deleted.
+First of all, created a script that uses libogg (cause it was ok to break it temporarily) so that I can play around with it and see what happens.
+$ lsof  -p 17593
+COMMAND     PID    USER   FD   TYPE DEVICE SIZE/OFF    NODE NAME
+check_lib 17593 carolyn  cwd    DIR    8,4     4096 4849667 /home/carolyn
+check_lib 17593 carolyn  rtd    DIR    8,4     4096       2 /
+check_lib 17593 carolyn  txt    REG    8,4     9797 4861528 /home/carolyn/check_library.o
+check_lib 17593 carolyn  mem    REG    8,4    23608  175653 /usr/lib64/libogg.so.0.8.0
+check_lib 17593 carolyn  mem    REG    8,4  2098910 4980815 /lib64/libc-2.17.so
+check_lib 17593 carolyn  mem    REG    8,4    55080  156736 /usr/lib64/liboggz.so.2.6.0
+check_lib 17593 carolyn  mem    REG    8,4   171470 4980859 /lib64/ld-2.17.so
+check_lib 17593 carolyn    0u   CHR  136,4      0t0       7 /dev/pts/4
+check_lib 17593 carolyn    1u   CHR  136,4      0t0       7 /dev/pts/4
+check_lib 17593 carolyn    2u   CHR  136,4      0t0       7 /dev/pts/4
+
+As seen here, it happily uses the 0.8.0 version of libogg.
+For testing, copied libogg library to a new file and removed the old one (apparently moving the lib takes the FDs with it and continues working).
+
+root@slack:/usr/lib64# cp libogg.so.0.8.0  libogg.so.0.8.1
+root@slack:/usr/lib64# rm libogg.so.0.8.0
+
+Now when executing libs.sh, I can see that it is picked up:
+
+carolyn@slack:~/spotify/outdated_libraries$ ./libs.sh 
+checking libraries from /lib64...
+checking libraries from /usr/lib64...
+        Process kded4 with pid 922 that is running outdated library /usr/lib64/libogg.so.0.8.0
+        Process knotify4 with pid 1023 that is running outdated library /usr/lib64/libogg.so.0.8.0
+        Process kmix with pid 1113 that is running outdated library /usr/lib64/libogg.so.0.8.0
+        Process firefox with pid 1128 that is running outdated library /usr/lib64/libogg.so.0.8.0
+        Process check_library.o with pid 17593 that is running outdated library /usr/lib64/libogg.so.0.8.0
+checking libraries from /usr/local/lib...
+checking libraries from /usr/local/lib64...
+checking libraries from /usr/x86_64-slackware-linux/lib64...
+checking libraries from /usr/lib64/seamonkey...
+
+I realized by that also that there was no actual need for me to create the script to emulate library breaking.
 
 Make a private project on github. One of the spotify engineers wants to be invited. (handle skateordie)
