@@ -1,0 +1,1 @@
+cmd_/home/carolyn/spotify/kernel_module/interceptor.ko := ld -r -m elf_x86_64 -T /usr/src/linux-3.12.19/scripts/module-common.lds --build-id  -o /home/carolyn/spotify/kernel_module/interceptor.ko /home/carolyn/spotify/kernel_module/interceptor.o /home/carolyn/spotify/kernel_module/interceptor.mod.o
